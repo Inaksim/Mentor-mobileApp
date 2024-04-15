@@ -2,7 +2,8 @@ package com.mentor.utils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import android.widget.Toast;
+import androidx.fragment.app.FragmentActivity;
 public class Utils {
     private static Pattern pattern;
     private static Matcher matcher;
@@ -28,19 +29,19 @@ public class Utils {
 
     public static final String PARENT_EXTRA = "parent";
 
-    public static final String LOCATION_NAME_EXTRA = "location_title";
+    public static final String COURSE_NAME_EXTRA = "course_title";
 
-    public static final String LOCATION_SUBTITLE_EXTRA = "location_subtitle";
+    public static final String COURSE_SUBTITLE_EXTRA = "course_subtitle";
 
-    public static final String LOCATION_MAIN_IMAGE_EXTRA = "location_main_image";
+    public static final String COURSE_MAIN_IMAGE_EXTRA = "course_main_image";
 
-    public static final String LOCATION_IMAGES_EXTRA = "location_images";
+    public static final String COURSE_IMAGES_EXTRA = "course_images";
 
-    public static final String LOCATION_DESCRIPTION_EXTRA = "location_description";
+    public static final String COURSE_DESCRIPTION_EXTRA = "course_description";
 
-    public static final String LOCATION_ID_EXTRA = "location_id";
+    public static final String COURSE_ID_EXTRA = "course_id";
 
-    public static final String LOCATION_JSON_EXTRA = "location_json";
+    public static final String COURSE_JSON_EXTRA = "course_json";
 
     public static final String IS_FAVORITE_EXTRA = "is_favorite";
 
@@ -54,10 +55,34 @@ public class Utils {
         return matcher.matches();
     }
 
+    /**
+     * Проверяване на парола чрез Регулярен израз
+     * @param password
+     * @return връща true за валиден парола и false за невалиден
+     * Password
+     * */
     public static boolean validatePassword(String password) {
-        pattern = Pattern.compile(PASSWORD_PATTERN);
-        matcher = pattern.matcher(password);
+        //Compiling the regular expression
+        Pattern pattern = Pattern.compile(PASSWORD_PATTERN);
+        //Retrieving the matcher object
+        Matcher matcher = pattern.matcher(password);
+        //Checking the string for pattern match
         return matcher.matches();
+    }
+
+    /**
+     * проверява за Null String object
+     *
+     * @param txt
+     * @return true връща когато не е нула и false за null String
+    object
+     */
+    public static boolean isNotNull(String txt){
+        return txt != null && txt.trim().length() > 0;
+    }
+
+    public static void showToast(FragmentActivity activity, String message) {
+        Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
     }
 
 }

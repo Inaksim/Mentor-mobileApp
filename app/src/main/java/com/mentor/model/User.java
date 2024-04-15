@@ -1,40 +1,52 @@
 package com.mentor.model;
 
+
+import com.mentor.activity.LoginActivity;
+
 public class User {
-    private int id;
-
-    private String name;
-
-    private String mail;
+    private Long id;
+    private String firstName;
+    private String lastName;
+    private String email;
 
     private String password;
 
     private String role;
 
 
+    public User(Long id, String firstName, String lastName, String mail, String role) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = mail;
+        this.role = role;
+    }
 
-    public int getId() {
+    public User() {
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
     public String getName() {
-        return name;
+        return firstName;
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.firstName = name;
     }
 
     public String getMail() {
-        return mail;
+        return email;
     }
 
     public void setMail(String mail) {
-        this.mail = mail;
+        this.email = mail;
     }
 
     public String getPassword() {

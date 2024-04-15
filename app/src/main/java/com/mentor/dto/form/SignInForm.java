@@ -1,16 +1,12 @@
 package com.mentor.dto.form;
-
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.Setter;
-
-@Getter
-@Setter
-@NoArgsConstructor
 public class SignInForm {
     private String email;
     private String password;
+
+    public SignInForm(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
 
     public String getEmail() {
         return email;

@@ -6,14 +6,41 @@ public class Course {
     private String title;
     private String description;
     private String department;
-    private  int review;
+    private int review;
+    private Long category_id;
+    private Long teacher_id;
+    private boolean fav;
+    private int members;
+    private String link;
 
-    public Long getCourse_id() {
-        return course_id;
+
+    public Course(Long id, String title, String description, String department, int review, Long category_id, Long teacher_id, boolean isFav, int members, String link) {
+        this.course_id = id;
+        this.title = title;
+        this.description = description;
+        this.department = department;
+        this.review = review;
+        this.category_id = category_id;
+        this.teacher_id = teacher_id;
+        this.fav = isFav;
+        this.members = members;
+        this.link = link;
     }
 
-    public void setCourse_id(Long course_id) {
-        this.course_id = course_id;
+    public Long getCategory_id() {
+        return category_id;
+    }
+
+    public Long getTeacher_id() {
+        return teacher_id;
+    }
+
+    public void setCategory_id(Long category_id) {
+        this.category_id = category_id;
+    }
+
+    public void setTeacher_id(Long teacher_id) {
+        this.teacher_id = teacher_id;
     }
 
     public String getTitle() {
@@ -46,5 +73,37 @@ public class Course {
 
     public void setReview(int review) {
         this.review = review;
+    }
+
+    public Long getCourse_id() {
+        return course_id;
+    }
+
+    public void setCourse_id(Long course_id) {
+        this.course_id = course_id;
+    }
+
+    public boolean isFav() {
+        return fav;
+    }
+
+    public void setFav(boolean fav) {
+        fav = fav;
+    }
+
+    public int getMembers() {
+        return members;
+    }
+
+    public void setMembers(int members) {
+        this.members = members;
+    }
+
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
     }
 }
