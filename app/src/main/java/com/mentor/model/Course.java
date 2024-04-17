@@ -12,9 +12,10 @@ public class Course {
     private boolean fav;
     private int members;
     private String link;
+    private String picture;
 
 
-    public Course(Long id, String title, String description, String department, int review, Long category_id, Long teacher_id, boolean isFav, int members, String link) {
+    public Course(Long id, String title, String description, String department, int review, Long category_id, Long teacher_id, boolean isFav, int members, String link, String picture) {
         this.course_id = id;
         this.title = title;
         this.description = description;
@@ -25,6 +26,7 @@ public class Course {
         this.fav = isFav;
         this.members = members;
         this.link = link;
+        this.picture = picture;
     }
 
     public Long getCategory_id() {
@@ -105,5 +107,13 @@ public class Course {
 
     public void setLink(String link) {
         this.link = link;
+    }
+
+    public String getPicture() {
+        return picture;
+    }
+
+    public void setPicture(String picture) {
+        this.picture = picture;
     }
 }

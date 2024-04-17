@@ -1,7 +1,7 @@
 package com.mentor.model;
 
 
-import com.mentor.activity.LoginActivity;
+
 
 public class User {
     private Long id;

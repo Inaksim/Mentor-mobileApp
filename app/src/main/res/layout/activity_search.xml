@@ -48,7 +48,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/searchView" />
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/searchLocationsRecycler"
+                android:id="@+id/searchCourseRecycler"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
@@ -99,11 +99,11 @@
                     app:srcCompat="@drawable/ic_arrow_back" />
 
                 <TextView
-                    android:id="@+id/locationName"
+                    android:id="@+id/courseName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/inter_semibold"
-                    android:text="@string/Search"
+                    android:text="@string/search"
                     android:textColor="@color/black_dark_900"
                     android:textSize="16dp"
                     app:layout_constraintBottom_toBottomOf="parent"

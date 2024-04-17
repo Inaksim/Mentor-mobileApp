@@ -25,7 +25,7 @@
             android:layout_height="246dp"
             android:layout_gravity="center"
             android:orientation="horizontal"
-            android:background="@drawable/vitosha_full"/>
+            android:background="@drawable/course"/>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -45,14 +45,14 @@
                     android:layout_marginBottom="20dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:srcCompat="@drawable/ic_location" />
+                    app:srcCompat="@drawable/ic_user" />
 
                 <TextView
-                    android:id="@+id/locationSubtitle"
+                    android:id="@+id/courseSubtitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
-                    android:text="@string/Sofia"
+                    android:text="@string/count"
                     android:textColor="@color/black_white_0"
                     android:fontFamily="@font/inter_medium"
                     android:textSize="12dp"
@@ -71,14 +71,14 @@
                     app:srcCompat="@drawable/ic_liked" />
 
                 <TextView
-                    android:id="@+id/locationNameCard"
+                    android:id="@+id/courseNameCard"
                     android:layout_width="145dp"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     android:textColor="@color/black_white_0"
                     android:fontFamily="@font/inter_semibold"
                     android:textSize="20dp"
-                    android:text="@string/Vitosha"
+                    android:text="@string/course"
                     app:layout_constraintBottom_toTopOf="@+id/imageView3"
                     app:layout_constraintStart_toStartOf="@+id/imageView3" />
 

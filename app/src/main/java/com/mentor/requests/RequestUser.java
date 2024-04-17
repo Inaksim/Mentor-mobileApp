@@ -1,22 +1,17 @@
 package com.mentor.requests;
 
-import androidx.core.app.ActivityCompat;
+
 
 import com.mentor.dto.form.RequestFav;
 import com.mentor.dto.form.ResetPasswordForm;
 import com.mentor.dto.form.SignInForm;
 import com.mentor.dto.form.SignUpForm;
-
 import com.mentor.dto.view.UserView;
 import com.mentor.model.Category;
 import com.mentor.model.Course;
-import com.mentor.model.User;
-
 import java.util.List;
-
 import retrofit2.Call;
 import retrofit2.http.Body;
-
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
@@ -26,12 +21,6 @@ import retrofit2.http.Query;
 public interface RequestUser {
 
     //Authentication requests
-    @GET("/auth/user/{id}")
-    Call<UserView> getUser(@Path("id") Long id);
-
-    @GET("/auth/test")
-    Call<String> test();
-
     @POST("/auth/sign-in")
     Call<UserView> signInPost(@Body SignInForm form);
 
@@ -49,9 +38,6 @@ public interface RequestUser {
     @GET("/course/get-all")
     Call<List<Course>> courses(@Query("email") String email);
 
-    @GET("/course/course/{id}")
-    Call<Course> getCourseById(@Path("id") Long id);
-
     @GET("/course/follows/{id}")
     Call<List<Course>> getFollows(@Path("id") Long id);
 
@@ -60,8 +46,7 @@ public interface RequestUser {
 
     @POST("/course/remove-favorite")
     Call<String> removeFavorite(@Body RequestFav requestFav);
-//    @GET("/course/get-favorite")
-//    Call<List<Course>> getFavorite(@Body RequestFav requestFav);
+
 
     // Category request
 

@@ -1,7 +1,9 @@
 package com.mentor.activity;
 
+import static com.mentor.utils.Utils.BASE_URL;
 import static com.mentor.utils.Utils.CURRENT_USER_EXTRA;
 import static com.mentor.utils.Utils.SEARCH_EXTRA;
+import static com.mentor.utils.Utils.showToast;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -9,36 +11,29 @@ import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import com.mentor.R;
 import com.mentor.adapter.CourseAdapter;
-
 import com.mentor.model.Course;
 import com.mentor.model.User;
 import com.mentor.requests.RequestUser;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import java.lang.ref.ReferenceQueue;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-//load courses
 public class SearchActivity extends AppCompatActivity {
     private TextView searchTextView;
     private ProgressDialog progressDialog;
 
-    private RecyclerView locationRecycler;
+    private RecyclerView courseRecycler;
 
     private CourseAdapter courseAdapter;
 
@@ -66,11 +61,11 @@ public class SearchActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String s) {
-                List<Course> locations = courseAdapter.getAllCourses();
-                List<Course> filteredLocations = locations.stream().filter(course -> course.getTitle().toLowerCase().contains(s.toLowerCase())).collect(Collectors.toList());
-                courseAdapter.setCourse(filteredLocations);
+                List<Course> courses = courseAdapter.getAllCourses();
+                List<Course> filteredCourses = courses.stream().filter(course -> course.getTitle().toLowerCase().contains(s.toLowerCase())).collect(Collectors.toList());
+                courseAdapter.setCourse(filteredCourses);
                 courseAdapter.notifyDataSetChanged();
-                searchTextView.setText(MessageFormat.format(SEARCH_TEXT_VIEW_VALUE, filteredLocations.size(), s));
+                searchTextView.setText(MessageFormat.format(SEARCH_TEXT_VIEW_VALUE, filteredCourses.size(), s));
                 return false;
             }
         });
@@ -89,7 +84,7 @@ public class SearchActivity extends AppCompatActivity {
                 .create();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.0.190:8080")
+                .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
@@ -105,13 +100,20 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<List<Course>> call, Response<List<Course>> response) {
                 progressDialog.hide();
-//                List<Course> courses = gson.fromJson(response.body().toString(), new TypeToken<List<Course>>() {}.getType());
 
-                List<Course> courses = response.body();
-                List<Course> filteredCourse = courses.stream().filter(course -> course.getTitle().toLowerCase().contains(search.toLowerCase())).collect(Collectors.toList());
-                searchTextView.setText(MessageFormat.format(SEARCH_TEXT_VIEW_VALUE, filteredCourse.size(), search));
-                setLocationRecycler(filteredCourse);
-                courseAdapter.setAllCourse(courses);
+                if (response.code() == 401) {
+                    showToast(SearchActivity.this, "Невалидни потребителски данни");
+                } else if (response.code() == 404) {
+                    showToast(SearchActivity.this, "Страницата не е намерена");
+                } else if (response.code() == 500) {
+                    showToast(SearchActivity.this, "Сървърна грешка");
+                } else {
+                    List<Course> courses = response.body();
+                    List<Course> filteredCourse = courses.stream().filter(course -> course.getTitle().toLowerCase().contains(search.toLowerCase())).collect(Collectors.toList());
+                    searchTextView.setText(MessageFormat.format(SEARCH_TEXT_VIEW_VALUE, filteredCourse.size(), search));
+                    setCourseRecycler(filteredCourse);
+                    courseAdapter.setAllCourse(courses);
+                }
             }
 
             @Override
@@ -122,16 +124,16 @@ public class SearchActivity extends AppCompatActivity {
         });
     }
 
-    private void setLocationRecycler(List<Course> locations) {
+    private void setCourseRecycler(List<Course> courses) {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
 
-        locationRecycler = findViewById(R.id.searchLocationsRecycler);
-        locationRecycler.setLayoutManager(layoutManager);
+        courseRecycler = findViewById(R.id.searchCourseRecycler);
+        courseRecycler.setLayoutManager(layoutManager);
 
         Gson gson = new Gson();
         String currentUserString = getIntent().getExtras().getString(CURRENT_USER_EXTRA);
 
-        courseAdapter = new CourseAdapter(this, locations, currentUserString);
-        locationRecycler.setAdapter(courseAdapter);
+        courseAdapter = new CourseAdapter(this, courses, currentUserString);
+        courseRecycler.setAdapter(courseAdapter);
     }
 }

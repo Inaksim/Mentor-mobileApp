@@ -22,20 +22,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-<!--            &lt;!&ndash;<SearchView-->
-<!--                android:id="@+id/searchView"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="50dp"-->
-<!--                android:layout_marginStart="32dp"-->
-<!--                android:layout_marginTop="84dp"-->
-<!--                android:layout_marginEnd="32dp"-->
-<!--                android:background="@drawable/background_border"-->
-<!--                android:layoutDirection="rtl"-->
-<!--                android:searchIcon="@drawable/ic_search"-->
-<!--                app:layout_constraintEnd_toEndOf="parent"-->
-<!--                app:layout_constraintStart_toStartOf="parent"-->
-<!--                app:layout_constraintTop_toTopOf="parent" />&ndash;&gt;-->
-
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/categoryListRecycler"
                 android:layout_width="match_parent"
@@ -48,7 +34,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/categoryListLocationsRecycler"
+                android:id="@+id/categoryListCoursesRecycler"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
@@ -99,7 +85,7 @@
                     app:srcCompat="@drawable/ic_arrow_back" />
 
                 <TextView
-                    android:id="@+id/locationName"
+                    android:id="@+id/courseName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/inter_semibold"

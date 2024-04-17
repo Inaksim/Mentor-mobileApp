@@ -1,7 +1,7 @@
 package com.mentor.activity;
 
+import static com.mentor.utils.Utils.BASE_URL;
 import static com.mentor.utils.Utils.EMAIL_EXTRA;
-import static com.mentor.utils.Utils.PARENT_EXTRA;
 import static com.mentor.utils.Utils.isNotNull;
 import static com.mentor.utils.Utils.showToast;
 import static com.mentor.utils.Utils.validateEmail;
@@ -12,22 +12,14 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mentor.R;
-import com.mentor.dto.form.ResetPasswordForm;
-import com.mentor.dto.view.UserView;
 import com.mentor.requests.RequestUser;
-
 import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.UnsupportedEncodingException;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -87,7 +79,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                 .create();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.0.190:8080")
+                .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
         RequestUser requestUser = retrofit.create(RequestUser.class);
@@ -98,12 +90,20 @@ public class ForgotPasswordActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<Boolean> call, Response<Boolean> response) {
                 prgDialog.hide();
-                if(response.body() == Boolean.TRUE){
-                    Intent intent = new Intent(ForgotPasswordActivity.this, NewPasswordActivity.class);
-                    intent.putExtra(EMAIL_EXTRA, email);
-                    startActivity(intent);
+                if(response.code() == 401) {
+                    showToast(ForgotPasswordActivity.this, "Невалидни потребителски данни");
+                } else if (response.code() == 404) {
+                    showToast(ForgotPasswordActivity.this, "Страницата не е намерена");
+                } else if (response.code() == 500) {
+                    showToast(ForgotPasswordActivity.this, "Сървърна грешка");
                 } else {
-                    showToast(ForgotPasswordActivity.this, "USER NOT EXISTS");
+                    if (response.body() == Boolean.TRUE) {
+                        Intent intent = new Intent(ForgotPasswordActivity.this, NewPasswordActivity.class);
+                        intent.putExtra(EMAIL_EXTRA, email);
+                        startActivity(intent);
+                    } else {
+                        showToast(ForgotPasswordActivity.this, "USER NOT EXISTS");
+                    }
                 }
 
             }

@@ -1,5 +1,6 @@
 package com.mentor.activity;
 
+import static com.mentor.utils.Utils.BASE_URL;
 import static com.mentor.utils.Utils.CURRENT_USER_EXTRA;
 import static com.mentor.utils.Utils.showToast;
 
@@ -90,7 +91,7 @@ public class LoginActivity extends AppCompatActivity {
                 .create();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.0.190:8080")
+                .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
         RequestUser requestUser = retrofit.create(RequestUser.class);
@@ -101,13 +102,21 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<UserView> call, Response<UserView> response) {
                 prgDialog.hide();
-                Intent homePageIntent = new Intent(LoginActivity.this, HomePageActivity.class);
-                Bundle bundle = new Bundle();
-                UserView userView = response.body();
-                String userViewJson = gson.toJson(userView);
-                bundle.putString(CURRENT_USER_EXTRA, userViewJson);
-                homePageIntent.putExtras(bundle);
-                startActivity(homePageIntent);
+                if (response.code() == 401) {
+                    showToast(LoginActivity.this, "Невалидни потребителски данни");
+                } else if (response.code() == 404) {
+                    showToast(LoginActivity.this, "Страницата не е намерена");
+                } else if (response.code() == 500) {
+                    showToast(LoginActivity.this, "Сървърна грешка");
+                } else {
+                    Intent homePageIntent = new Intent(LoginActivity.this, HomePageActivity.class);
+                    Bundle bundle = new Bundle();
+                    UserView userView = response.body();
+                    String userViewJson = gson.toJson(userView);
+                    bundle.putString(CURRENT_USER_EXTRA, userViewJson);
+                    homePageIntent.putExtras(bundle);
+                    startActivity(homePageIntent);
+                }
             }
 
             @Override

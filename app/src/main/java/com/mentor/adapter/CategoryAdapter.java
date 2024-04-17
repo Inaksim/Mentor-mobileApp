@@ -6,6 +6,8 @@ import static com.mentor.utils.Utils.CURRENT_USER_EXTRA;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +22,7 @@ import com.mentor.activity.CategoryActivity;
 import com.mentor.activity.HomePageActivity;
 import com.mentor.model.Category;
 
+import android.util.Base64;
 import java.util.List;
 
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder> {
@@ -57,6 +60,11 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     @Override
     public void onBindViewHolder(@NonNull CategoryViewHolder holder, int position) {
         holder.categoryName.setText(categories.get(position).getName());
+        String base64Image = categories.get(position).getPicture();
+        byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
+        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+        holder.categoryPicture.setImageBitmap(decodedByte);
+
         holder.itemView.setOnClickListener(v -> {
             if (context instanceof HomePageActivity || context instanceof CategoryActivity) {
                 Category category = categories.get(position);

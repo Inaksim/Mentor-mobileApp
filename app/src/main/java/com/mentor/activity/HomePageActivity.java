@@ -1,14 +1,13 @@
 package com.mentor.activity;
 
+import static com.mentor.utils.Utils.BASE_URL;
 import static com.mentor.utils.Utils.CURRENT_USER_EXTRA;
 import static com.mentor.utils.Utils.SEARCH_EXTRA;
+import static com.mentor.utils.Utils.showToast;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.nfc.cardemulation.CardEmulation;
 import android.os.Bundle;
-import android.os.UserHandle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SearchView;
@@ -30,19 +29,10 @@ import com.mentor.model.Category;
 import com.mentor.model.Course;
 import com.mentor.model.User;
 import com.mentor.requests.RequestUser;
-
-import okhttp3.Interceptor;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import retrofit2.Call;
-
-import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.zip.CheckedOutputStream;
-
-
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
@@ -50,22 +40,13 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class HomePageActivity extends AppCompatActivity {
     private RecyclerView catalogRecycler;
-
     private RecyclerView courseRecycler;
-
     private CourseAdapter courseAdapter;
     private CategoryAdapter categoryAdapter;
-
-
-
     private ProgressDialog progressDialog;
-
     private TextView greetingText;
-
     private SearchView searchView;
-
     private ImageView noContentImage;
-
     public static final String GREETING_TEXT = "Здравейте, {0}!";
 
 
@@ -80,8 +61,6 @@ public class HomePageActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_page);
-
-
         Gson gson = new Gson();
 
         progressDialog = new ProgressDialog(this);
@@ -132,7 +111,7 @@ public class HomePageActivity extends AppCompatActivity {
                 .create();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.0.190:8080")
+                .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
@@ -142,25 +121,31 @@ public class HomePageActivity extends AppCompatActivity {
         Bundle currentBundle = currentIntent.getExtras();
         String currentUserString = currentBundle.getString(CURRENT_USER_EXTRA);
         User currentUser = gson.fromJson(currentUserString, new TypeToken<User>() {}.getType());
-        SharedPreferences sharedPreferences = getSharedPreferences("MySharedPref", MODE_PRIVATE);
-        SharedPreferences.Editor myEdit = sharedPreferences.edit();
-        myEdit.putString("currentUserEmail", currentUser.getMail());
         Call<List<Course>> call = requestUser.getFollows(currentUser.getId());
 
         call.enqueue(new Callback<List<Course>>() {
             @Override
             public void onResponse(Call<List<Course>> call, Response<List<Course>> response) {
                 progressDialog.hide();
-                List<Course> courses = gson.fromJson(gson.toJson(response.body()), new TypeToken<List<Course>>() {}.getType());
-                courseAdapter.setCourse(courses);
-                courseAdapter.notifyDataSetChanged();
-
-                if(courses.isEmpty()) {
-                    noContentImage.setVisibility(View.VISIBLE);
-                    courseRecycler.setVisibility(View.GONE);
+                if (response.code() == 401) {
+                    showToast(HomePageActivity.this, "Невалидни потребителски данни");
+                } else if (response.code() == 404) {
+                    showToast(HomePageActivity.this, "Страницата не е намерена");
+                } else if (response.code() == 500) {
+                    showToast(HomePageActivity.this, "Сървърна грешка");
                 } else {
-                    noContentImage.setVisibility(View.GONE);
-                    courseRecycler.setVisibility(View.VISIBLE);
+                    List<Course> courses = gson.fromJson(gson.toJson(response.body()), new TypeToken<List<Course>>() {
+                    }.getType());
+                    courseAdapter.setCourse(courses);
+                    courseAdapter.notifyDataSetChanged();
+
+                    if (courses.isEmpty()) {
+                        noContentImage.setVisibility(View.VISIBLE);
+                        courseRecycler.setVisibility(View.GONE);
+                    } else {
+                        noContentImage.setVisibility(View.GONE);
+                        courseRecycler.setVisibility(View.VISIBLE);
+                    }
                 }
             }
 
@@ -180,7 +165,7 @@ public class HomePageActivity extends AppCompatActivity {
                 .create();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.0.190:8080")
+                .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
@@ -195,9 +180,16 @@ public class HomePageActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<List<Category>> call, Response<List<Category>> response) {
                 progressDialog.hide();
-//                List<Category> fetchedCategory  = gson.fromJson(gson.toJson(response.body()), new TypeToken<List<Category>>() {}.getType());
-                List<Category> fetchedCategory = response.body();
-                setCategoryRecycler(fetchedCategory);
+                if (response.code() == 401) {
+                    showToast(HomePageActivity.this, "Невалидни потребителски данни");
+                } else if (response.code() == 404) {
+                    showToast(HomePageActivity.this, "Страницата не е намерена");
+                } else if (response.code() == 500) {
+                    showToast(HomePageActivity.this, "Сървърна грешка");
+                } else {
+                    List<Category> fetchedCategory = response.body();
+                    setCategoryRecycler(fetchedCategory);
+                }
             }
 
             @Override
@@ -223,7 +215,7 @@ public class HomePageActivity extends AppCompatActivity {
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false);
 
-        courseRecycler = findViewById(R.id.locationRecycler);
+        courseRecycler = findViewById(R.id.courseRecycler);
         courseRecycler.setLayoutManager(layoutManager);
 
 

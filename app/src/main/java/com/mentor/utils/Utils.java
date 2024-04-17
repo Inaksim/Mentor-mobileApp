@@ -8,10 +8,12 @@ public class Utils {
     private static Pattern pattern;
     private static Matcher matcher;
 
+    //Email Pattern
     private static final String EMAIL_PATTERN = "^[_A-Za-z0-9-+]+(\\.[_A-Za-z0-9-]+)*@" + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
 
     //regex for checking password length 6 characters and at least one digit
     private static final String PASSWORD_PATTERN = "((?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{6,20})";
+    public static final String BASE_URL = "http://192.168.0.190:8080";
 
     public static final String EMAIL_EXTRA = "email";
 

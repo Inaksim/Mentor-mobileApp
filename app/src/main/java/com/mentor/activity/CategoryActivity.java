@@ -1,7 +1,9 @@
 package com.mentor.activity;
 
+import static com.mentor.utils.Utils.BASE_URL;
 import static com.mentor.utils.Utils.CATEGORY_ID_EXTRA;
 import static com.mentor.utils.Utils.CURRENT_USER_EXTRA;
+import static com.mentor.utils.Utils.showToast;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -39,7 +41,7 @@ public class CategoryActivity extends AppCompatActivity {
 
     private CategoryAdapter categoryAdapter;
 
-    private RecyclerView locationRecycler;
+    private RecyclerView courseRecycler;
 
     private CourseAdapter courseAdapter;
 
@@ -90,7 +92,7 @@ public class CategoryActivity extends AppCompatActivity {
                 .create();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.0.190:8080")
+                .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
@@ -107,10 +109,18 @@ public class CategoryActivity extends AppCompatActivity {
         call.enqueue(new Callback<List<Category>>() {
             @Override
             public void onResponse(Call<List<Category>> call, Response<List<Category>> response) {
-//                List<Category> fetchedCategories = gson.fromJson(new String(String.valueOf(response)), new TypeToken<List<Category>>() {}.getType());
-                List<Category> fetchedCategories = response.body();
-                categoryAdapter.setCategories(fetchedCategories);
-                categoryAdapter.notifyDataSetChanged();
+                if(response.code() == 401) {
+                    showToast(CategoryActivity.this, "Невалидни потребителски данни");
+                } else if (response.code() == 404) {
+                    showToast(CategoryActivity.this, "Страницата не е намерена");
+                } else if (response.code() == 500) {
+                    showToast(CategoryActivity.this, "Сървърна грешка");
+                } else {
+                    List<Category> fetchedCategories = response.body();
+                    categoryAdapter.setCategories(fetchedCategories);
+                    categoryAdapter.notifyDataSetChanged();
+                }
+
             }
 
             @Override
@@ -124,10 +134,17 @@ public class CategoryActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<Category> call, Response<Category> response) {
                 progressDialog.hide();
-//                Category fetchedCategory = gson.fromJson(new String(String.valueOf(response)), new TypeToken<Category>() {}.getType());
-                Category fetchedCategory = response.body();
-                courseAdapter.setCourse(fetchedCategory.getCourses());
-                courseAdapter.notifyDataSetChanged();
+                if(response.code() == 401) {
+                    showToast(CategoryActivity.this, "Невалидни потребителски данни");
+                } else if (response.code() == 404) {
+                    showToast(CategoryActivity.this, "Страницата не е намерена");
+                } else if (response.code() == 500) {
+                    showToast(CategoryActivity.this, "Сървърна грешка");
+                } else {
+                    Category fetchedCategory = response.body();
+                    courseAdapter.setCourse(fetchedCategory.getCourses());
+                    courseAdapter.notifyDataSetChanged();
+                }
             }
 
             @Override
@@ -141,15 +158,15 @@ public class CategoryActivity extends AppCompatActivity {
     private void setCourseRecycler(LinkedList<Course> courses) {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
 
-        locationRecycler = findViewById(R.id.categoryListLocationsRecycler);
-        locationRecycler.setLayoutManager(layoutManager);
+        courseRecycler = findViewById(R.id.categoryListCoursesRecycler);
+        courseRecycler.setLayoutManager(layoutManager);
 
         Intent intent = getIntent();
         String userString = intent.getStringExtra(CURRENT_USER_EXTRA);
         User user = gson.fromJson(userString, User.class);
 
         courseAdapter = new CourseAdapter(this, courses, userString);
-        locationRecycler.setAdapter(courseAdapter);
+        courseRecycler.setAdapter(courseAdapter);
     }
 
     private void setCategoryRecycler(LinkedList<Category> categories) {

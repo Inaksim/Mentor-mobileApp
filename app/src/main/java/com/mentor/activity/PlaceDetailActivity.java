@@ -1,12 +1,18 @@
 package com.mentor.activity;
 
+import static com.mentor.utils.Utils.BASE_URL;
 import static com.mentor.utils.Utils.COURSE_JSON_EXTRA;
 import static com.mentor.utils.Utils.CURRENT_USER_EXTRA;
 import static com.mentor.utils.Utils.showToast;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.ImageButton;
@@ -15,7 +21,6 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -26,10 +31,6 @@ import com.mentor.model.Course;
 import com.mentor.model.User;
 import com.mentor.requests.RequestUser;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -38,13 +39,12 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class PlaceDetailActivity extends AppCompatActivity {
 
-    private RecyclerView photoGalleryRecyclerView;
 
-    private TextView locationName;
+    private TextView courseName;
 
-    private TextView locationNameCard;
+    private TextView courseNameCard;
 
-    private TextView locationSubtitle;
+    private TextView courseSubtitle;
 
     private TextView textDescription;
 
@@ -54,35 +54,38 @@ public class PlaceDetailActivity extends AppCompatActivity {
 
     private ImageView favoriteImage;
 
-    private String locationTitle;
+    private String courseTitle;
 
     private ProgressDialog progressDialog;
     private WebView webView;
 
     private boolean isFavorite;
     private ImageButton btn;
+    private TextView textView;
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_place_detail);
 
-        String locationJSON = getIntent().getStringExtra(COURSE_JSON_EXTRA);
-        Course course = new Gson().fromJson(locationJSON, new TypeToken<Course>() {}.getType());
+        String courseJSON = getIntent().getStringExtra(COURSE_JSON_EXTRA);
+        Course course = new Gson().fromJson(courseJSON, new TypeToken<Course>() {}.getType());
 
 
         progressDialog = new ProgressDialog(this);
 
-        locationName = findViewById(R.id.locationNamePanel);
-        locationNameCard = findViewById(R.id.locationNameCard);
-        locationSubtitle = findViewById(R.id.locationSubtitle);
+        courseName = findViewById(R.id.courseNamePanel);
+        courseNameCard = findViewById(R.id.courseNameCard);
+        courseSubtitle = findViewById(R.id.courseSubtitle);
         textDescription = findViewById(R.id.textDescription);
         cardView = findViewById(R.id.cardBackground);
-        backImage = findViewById(R.id.locationDescriptionBackImage);
-        favoriteImage = findViewById(R.id.locationDescriptionFavouriteImage);
+        backImage = findViewById(R.id.courseDescriptionBackImage);
+        favoriteImage = findViewById(R.id.courseDescriptionFavouriteImage);
         webView = findViewById(R.id.webView);
         btn = (ImageButton) findViewById(R.id.textView17);;
+        textView = findViewById(R.id.textView12);
 
         isFavorite = course.isFav();
         setFavoriteState();
@@ -96,14 +99,22 @@ public class PlaceDetailActivity extends AppCompatActivity {
 
         backImage.setOnClickListener(v -> finish());
 
-        locationName.setText(course.getTitle());
-        locationTitle = course.getTitle();
+        courseName.setText(course.getTitle());
+        courseTitle = course.getTitle();
 
-        locationNameCard.setText(course.getTitle());
+        courseNameCard.setText(course.getTitle());
 
-        locationSubtitle.setText(String.valueOf(course.getMembers()));
+        courseSubtitle.setText(String.valueOf(course.getMembers()));
 
         textDescription.setText(course.getDescription());
+
+        textView.setText(course.getTitle());
+
+        String base64Image = course.getPicture();
+        byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
+        Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+        BitmapDrawable drawable = new BitmapDrawable(getResources(), bitmap);
+        cardView.setBackground(drawable);
 
 
         btn.setOnClickListener(new View.OnClickListener(){
@@ -113,46 +124,41 @@ public class PlaceDetailActivity extends AppCompatActivity {
         });
 
 
-//        Intent intent = getIntent();
-//        String userEmail = intent.getStringExtra("CURRENT_USER_EXTRA");
-//
-//        RequestFav req = new RequestFav(course.getCourse_id(), userEmail);
-
-//        inwokeWS(req);
     }
 
-    private void changeFavoriteStatus(boolean isFavorite, Long locationId) {
+    private void changeFavoriteStatus(boolean isFavorite, Long courseId) {
         Gson gson = new GsonBuilder()
                 .setLenient()
                 .create();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.0.190:8080")
+                .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
         RequestUser requestUser = retrofit.create(RequestUser.class);
-
-
-
         Intent intent = getIntent();
         String userString = intent.getStringExtra(CURRENT_USER_EXTRA);
         User user = gson.fromJson(userString, User.class);
-        RequestFav req = new RequestFav(locationId, user.getMail());
-
+        RequestFav req = new RequestFav(courseId, user.getMail());
         Call<String> call = requestUser.makeFavorite(req);
         Call<String> call2 = requestUser.removeFavorite(req);
-//        Call<List<Course>> call3 = requestUser.getFavorite(req);
-
-//        progressDialog.show();
         if (isFavorite) {
             call.enqueue(new Callback<String>() {
                 @Override
                 public void onResponse(Call<String> call, Response<String> response) {
-//                    progressDialog.hide();
-                    showToast(PlaceDetailActivity.this, "Course added to favorite");
-//                    Intent homePage = new Intent(PlaceDetailActivity.this, HomePageActivity.class);
-//                    startActivity(homePage);
+                    progressDialog.hide();
+                    if (response.code() == 401) {
+                        showToast(PlaceDetailActivity.this, "Невалидни потребителски данни");
+                    } else if (response.code() == 404) {
+                        showToast(PlaceDetailActivity.this, "Страницата не е намерена");
+                    } else if (response.code() == 500) {
+                        showToast(PlaceDetailActivity.this, "Сървърна грешка");
+                    } else {
+                        startActivity(new Intent(PlaceDetailActivity.this, LoginActivity.class));
+                    }
+                    showToast(PlaceDetailActivity.this, "Курсът добавен в любимите");
                 }
+
 
                 @Override
                 public void onFailure(Call<String> call, Throwable throwable) {
@@ -163,11 +169,16 @@ public class PlaceDetailActivity extends AppCompatActivity {
             call2.enqueue(new Callback<String>() {
                 @Override
                 public void onResponse(Call<String> call, Response<String> response) {
-//                    progressDialog.hide();
-                    showToast(PlaceDetailActivity.this, "Course removed from favorite");
-//                    Intent homePage = new Intent(PlaceDetailActivity.this, HomePageActivity.class);
-//                    startActivity(homePage);
+                    if (response.code() == 401) {
+                        showToast(PlaceDetailActivity.this, "Невалидни потребителски данни");
+                    } else if (response.code() == 404) {
+                        showToast(PlaceDetailActivity.this, "Страницата не е намерена");
+                    } else if (response.code() == 500) {
+                        showToast(PlaceDetailActivity.this, "Сървърна грешка");
+                    } else {
+                        showToast(PlaceDetailActivity.this, "Курсът е отстранен от любимите");
 
+                    }
                 }
 
                 @Override
@@ -178,32 +189,6 @@ public class PlaceDetailActivity extends AppCompatActivity {
         }
     }
 
-//    private void inwokeWS(RequestFav req) {
-//
-//        Gson gson = new GsonBuilder()
-//                .setLenient()
-//                .create();
-//
-//        Retrofit retrofit = new Retrofit.Builder()
-//                .baseUrl("http://192.168.0.190:8080")
-//                .addConverterFactory(GsonConverterFactory.create(gson))
-//                .build();
-//        RequestUser requestUser = retrofit.create(RequestUser.class);
-//        Call<String> call = requestUser.getFavorite(req);
-//        call.enqueue(new Callback<String>() {
-//            @Override
-//            public void onResponse(Call<String> call, Response<String> response) {
-//                isFavorite = true;
-//                setFavoriteState();
-//            }
-//
-//            @Override
-//            public void onFailure(Call<String> call, Throwable throwable) {
-//
-//            }
-//        });
-//
-//    }
     private void setFavoriteState(){
         favoriteImage.setImageResource(isFavorite ? R.drawable.ic_heart : R.drawable.ic_unliked_without_bg);
     }

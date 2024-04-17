@@ -40,7 +40,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginEnd="10dp"
                 android:layout_marginBottom="10dp"
-                app:srcCompat="@drawable/beach" />
+                app:srcCompat="@drawable/ic_dsgn" />
         </com.google.android.material.card.MaterialCardView>
 
         <TextView
@@ -52,7 +52,7 @@
             android:layout_marginEnd="20dp"
             android:layout_marginBottom="14dp"
             android:fontFamily="@font/inter_semibold"
-            android:text="@string/Beach"
+            android:text="@string/category"
             android:textColor="@color/black_dark_900"
             android:textSize="16sp" />
     </com.google.android.material.card.MaterialCardView>

@@ -1,31 +1,29 @@
 package com.mentor.adapter;
 
 
-import static android.content.Intent.getIntent;
+
 import static com.mentor.utils.Utils.COURSE_JSON_EXTRA;
 import static com.mentor.utils.Utils.CURRENT_USER_EXTRA;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Bundle;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.mentor.R;
 import com.mentor.activity.HomePageActivity;
 import com.mentor.activity.PlaceDetailActivity;
 import com.mentor.model.Course;
-import com.mentor.model.User;
 
 import java.util.List;
 
@@ -83,6 +81,12 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
         holder.courseName.setText(course.getTitle());
         holder.courseSub.setText(String.valueOf(course.getMembers()));
 
+        String base64Image = courses.get(position).getPicture();
+        byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
+        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+        BitmapDrawable drawable = new BitmapDrawable(context.getResources(), decodedByte);
+        holder.cardBackground.setBackground(drawable);
+
         if(!(context instanceof HomePageActivity)) {
             holder.courseSub.setText(String.valueOf(course.getMembers()));
 
@@ -113,13 +117,13 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
             super(itemView);
 
             if (itemView.getContext() instanceof HomePageActivity) {
-                courseName = itemView.findViewById(R.id.locationNameCard);
-                courseSub = itemView.findViewById(R.id.locationSubtitle);
+                courseName = itemView.findViewById(R.id.courseNameCard);
+                courseSub = itemView.findViewById(R.id.courseSubtitle);
                 cardBackground = itemView.findViewById(R.id.cardBackground);
             }else {
-                courseName = itemView.findViewById(R.id.allCategoryLocationName);
-                courseSub = itemView.findViewById(R.id.allCategoriesLocationSubtitle);
-                cardBackground = itemView.findViewById(R.id.allCategoriesLocationImage);
+                courseName = itemView.findViewById(R.id.allCategoryCourseName);
+                courseSub = itemView.findViewById(R.id.allCategoriesCourseSubtitle);
+                cardBackground = itemView.findViewById(R.id.allCategoriesCourseImage);
             }
         }
     }

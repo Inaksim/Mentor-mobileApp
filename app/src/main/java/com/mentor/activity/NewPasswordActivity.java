@@ -1,5 +1,6 @@
 package com.mentor.activity;
 
+import static com.mentor.utils.Utils.BASE_URL;
 import static com.mentor.utils.Utils.EMAIL_EXTRA;
 import static com.mentor.utils.Utils.isNotNull;
 import static com.mentor.utils.Utils.showToast;
@@ -86,21 +87,27 @@ public class NewPasswordActivity extends AppCompatActivity {
                 .create();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.0.190:8080")
+                .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
         RequestUser requestUser = retrofit.create(RequestUser.class);
         progressDialog.show();
         ResetPasswordForm form = new ResetPasswordForm(getIntent().getStringExtra(EMAIL_EXTRA), newPassword);
-
         Call<UserView> call = requestUser.resetPassword(form);
         call.enqueue(new Callback<UserView>() {
             @Override
             public void onResponse(Call<UserView> call, Response<UserView> response) {
                 progressDialog.hide();
-                startActivity(new Intent(NewPasswordActivity.this, LoginActivity.class));
+                if (response.code() == 401) {
+                    showToast(NewPasswordActivity.this, "Невалидни потребителски данни");
+                } else if (response.code() == 404) {
+                    showToast(NewPasswordActivity.this, "Страницата не е намерена");
+                } else if (response.code() == 500) {
+                    showToast(NewPasswordActivity.this, "Сървърна грешка");
+                } else {
+                    startActivity(new Intent(NewPasswordActivity.this, LoginActivity.class));
+                }
             }
-
             @Override
             public void onFailure(Call<UserView> call, Throwable throwable) {
                 progressDialog.hide();
